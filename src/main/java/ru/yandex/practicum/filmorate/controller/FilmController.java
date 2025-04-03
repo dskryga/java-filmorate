@@ -20,15 +20,13 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> findAll() {
+        log.info("Запрошен список всех фильмов");
         return films.values();
     }
 
     @PostMapping
     public Film create(@RequestBody @Valid Film film) {
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 26))) {
-            log.warn("Введено некорректная дата выпуска фильма");
-            throw new ValidationException("Некорректная дата выпуска фильма");
-        }
+        validateReleaseDate(film.getReleaseDate());
         film.setId(getNextId());
         films.put(film.getId(), film);
         log.info("Размещен новый фильм с id {}", film.getId());
@@ -48,6 +46,7 @@ public class FilmController {
                 oldFilm.setDescription(film.getDescription());
             }
             if (film.getReleaseDate() != null) {
+                validateReleaseDate(film.getReleaseDate());
                 oldFilm.setReleaseDate(film.getReleaseDate());
             }
             oldFilm.setDuration(film.getDuration());
@@ -66,5 +65,13 @@ public class FilmController {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
+    }
+
+    private void validateReleaseDate(LocalDate releaseDate) {
+        LocalDate firstFilmReleaseDate = LocalDate.of(1895,12,26);
+        if (releaseDate.isBefore(firstFilmReleaseDate)) {
+            log.warn("Введено некорректная дата выпуска фильма");
+            throw new ValidationException("Некорректная дата выпуска фильма");
+        }
     }
 }

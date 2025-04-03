@@ -19,14 +19,13 @@ public class UserController {
 
     @GetMapping
     public Collection<User> findAll() {
+        log.info("Запрошен список всех пользователей");
         return users.values();
     }
 
     @PostMapping
     public User create(@RequestBody @Valid User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
+        setLoginAsName(user);
         user.setId(getNextId());
         users.put(user.getId(), user);
         log.info("Создан новый пользователь с id{}", user.getId());
@@ -46,6 +45,8 @@ public class UserController {
             oldUser.setBirthday(user.getBirthday());
             if (!(user.getName() == null || user.getName().isBlank())) {
                 oldUser.setName(user.getName());
+            } else {
+                setLoginAsName(oldUser);
             }
             log.info("Обновлен пользователь с id {}", user.getId());
             return oldUser;
@@ -61,5 +62,11 @@ public class UserController {
                 .max()
                 .orElse(0);
         return ++currentMaxId;
+    }
+
+    private void setLoginAsName(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
     }
 }
