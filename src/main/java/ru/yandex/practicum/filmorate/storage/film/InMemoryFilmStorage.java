@@ -7,10 +7,10 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -25,7 +25,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film create(Film film) {
-        validateReleaseDate(film.getReleaseDate());
         film.setId(getNextId());
         films.put(film.getId(), film);
         log.info("Размещен новый фильм с id {}", film.getId());
@@ -35,8 +34,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film update(Film film) {
         if (film.getId() == null) {
-            log.warn("Введено некорректный id");
-            throw new ValidationException("Id олжен быть указан");
+            log.warn("Введен некорректный id");
+            throw new ValidationException("Id должен быть указан");
         }
         if (films.containsKey(film.getId())) {
             Film oldFilm = films.get(film.getId());
@@ -45,15 +44,14 @@ public class InMemoryFilmStorage implements FilmStorage {
                 oldFilm.setDescription(film.getDescription());
             }
             if (film.getReleaseDate() != null) {
-                validateReleaseDate(film.getReleaseDate());
                 oldFilm.setReleaseDate(film.getReleaseDate());
             }
             oldFilm.setDuration(film.getDuration());
             log.info("Обновлен фильм с id {}", film.getId());
             return oldFilm;
         }
-        log.warn("Фильм с указанным id не найден");
-        throw new NotFoundException("Фильм с указанным id не найден");
+        log.warn("Фильм с id {} не найден", film.getId());
+        throw new NotFoundException(String.format("Фильм с id %d не найден", film.getId()));
     }
 
     private long getNextId() {
@@ -65,15 +63,17 @@ public class InMemoryFilmStorage implements FilmStorage {
         return ++currentMaxId;
     }
 
-    private void validateReleaseDate(LocalDate releaseDate) {
-        LocalDate firstFilmReleaseDate = LocalDate.of(1895, 12, 26);
-        if (releaseDate.isBefore(firstFilmReleaseDate)) {
-            log.warn("Введено некорректная дата выпуска фильма");
-            throw new ValidationException("Некорректная дата выпуска фильма");
+    public Film getFilmById(Long id) {
+        if (films.containsKey(id)) {
+            return films.get(id);
         }
+        throw new NotFoundException(String.format("Фильм с id %d не найден", id));
     }
 
-    public Film getFilmById(Long id) {
-        return films.get(id);
+    public Collection<Film> getTheMostLikedFilms(Integer count) {
+        return getFilms().values().stream()
+                .sorted((o1, o2) -> (o2.getUsersWhoLiked().size()) - (o1.getUsersWhoLiked().size()))
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }
