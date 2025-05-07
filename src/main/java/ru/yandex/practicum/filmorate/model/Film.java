@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,6 +23,7 @@ public class Film {
     String description;
     @NotNull(message = "Дата релиза не может быть пустым")
     LocalDate releaseDate;
-    @Positive (message = "Длительность должна быть больше 0")
+    @Positive(message = "Длительность должна быть больше 0")
     int duration;
+    Set<Long> usersWhoLiked = new HashSet<>();
 }
