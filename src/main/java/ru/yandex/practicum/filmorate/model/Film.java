@@ -8,8 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.yandex.practicum.filmorate.model.dto.GenreDto;
-import ru.yandex.practicum.filmorate.model.dto.mpa.MpaDto;
 
 import java.time.LocalDate;
 import java.util.*;
