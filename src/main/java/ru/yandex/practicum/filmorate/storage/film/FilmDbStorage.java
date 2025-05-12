@@ -24,6 +24,7 @@ public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final FilmMapper filmMapper;
+    private final FilmDbStorageUtil filmDbStorageUtil;
 
     @Override
     public Collection<Film> getAll() {
@@ -36,6 +37,9 @@ public class FilmDbStorage implements FilmStorage {
         String createQuery = "INSERT INTO \"films\" (\"name\", \"description\", \"release_date\", \"duration\"," +
                 "\"mpa_id\") VALUES (?, ?, ?, ?, ?);";
 
+        Integer mpaId = film.getMpa().getId();
+        filmDbStorageUtil.checkMpa(mpaId);
+
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(createQuery, PreparedStatement.RETURN_GENERATED_KEYS);
@@ -43,7 +47,7 @@ public class FilmDbStorage implements FilmStorage {
             ps.setObject(2, film.getDescription());
             ps.setObject(3, film.getReleaseDate());
             ps.setObject(4, film.getDuration());
-            ps.setObject(5, film.getMpa().getId());
+            ps.setObject(5, mpaId);
             return ps;
         }, keyHolder);
 
@@ -131,6 +135,7 @@ public class FilmDbStorage implements FilmStorage {
         Long filmId = film.getId();
         for (Genre genre : film.getGenres()) {
             Integer genreId = genre.getId();
+            filmDbStorageUtil.checkGenre(genreId);
             jdbcTemplate.update(query, filmId, genreId);
         }
     }

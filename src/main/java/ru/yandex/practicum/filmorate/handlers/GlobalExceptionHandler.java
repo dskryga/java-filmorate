@@ -39,16 +39,17 @@ public class GlobalExceptionHandler {
         return ErrorResponse.builder().errorCode(400).description(e.getMessage()).build();
     }
 
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    public ErrorResponse handleUncaughtException(final Exception e) {
-//        return ErrorResponse.builder().errorCode(500).description(e.getMessage()).build();
-//   }
-
-   @ExceptionHandler
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleSQLIntegrityConstraintViolationException
-           (final JdbcSQLIntegrityConstraintViolationException e) {
+    public ErrorResponse handleSQLIntegrityConstraintViolationException(final JdbcSQLIntegrityConstraintViolationException e) {
         return ErrorResponse.builder().errorCode(404).description(e.getMessage()).build();
-   }
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleUncaughtException(final Exception e) {
+        return ErrorResponse.builder().errorCode(500).description(e.getMessage()).build();
+    }
+
+
 }
