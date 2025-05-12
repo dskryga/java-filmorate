@@ -53,4 +53,9 @@ public class FilmController {
         log.info("Получен запрос на получение {} фильмов с наибольшим количеством лайков", count);
         return filmService.getTheMostLikedFilms(count);
     }
+
+    @GetMapping("{id}")
+    public Film getById(@PathVariable Long id) {
+        return filmService.getById(id);
+    }
 }

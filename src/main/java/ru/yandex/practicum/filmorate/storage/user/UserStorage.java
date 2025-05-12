@@ -15,5 +15,4 @@ public interface UserStorage {
 
     User getById(Long id) throws NotFoundException;
 
-    Map<Long, User> getUsers();
 }
