@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
