@@ -21,7 +21,6 @@ public class UserDbStorage implements UserStorage {
     private final UserMapper userMapper;
     private final UserDbStorageUtil userDbStorageUtil;
 
-    String CREATE_QUERY = "INSERT INTO \"users\" (\"name\", \"login\", \"email\", \"birthday\") VALUES (?,?,?,?);";
 
     public List<User> getAll() {
         String query = "SELECT * FROM \"users\";";
@@ -29,9 +28,12 @@ public class UserDbStorage implements UserStorage {
     }
 
     public User create(User user) {
+
+        String query = "INSERT INTO \"users\" (\"name\", \"login\", \"email\", \"birthday\") VALUES (?,?,?,?);";
+
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(CREATE_QUERY, PreparedStatement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
             ps.setObject(1, user.getName());
             ps.setObject(2, user.getLogin());
             ps.setObject(3, user.getEmail());
