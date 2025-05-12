@@ -48,7 +48,7 @@ public class FilmDbStorageUtil {
     public void checkGenre(Integer id) {
         String query = "SELECT COUNT(*) FROM \"genres\" WHERE \"id\" = ?;";
         Integer linesFounded = jdbcTemplate.queryForObject(query, Integer.class, id);
-        if(linesFounded<1) {
+        if (linesFounded < 1) {
             throw new NotFoundException("Жанр с указанным id не найден");
         }
     }
