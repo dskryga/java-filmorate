@@ -20,26 +20,26 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Import({UserDbStorage.class})
-class FilmoRateApplicationTests {
-	@Autowired
-	protected UserDbStorage userStorage;
-	@Autowired
-	protected FilmDbStorage filmDbStorage;
+class FilmorateApplicationTests {
+    @Autowired
+    protected UserDbStorage userStorage;
+    @Autowired
+    protected FilmDbStorage filmDbStorage;
 
 
-	@Test
-	public void testFindUserById() {
+    @Test
+    public void testFindUserById() {
 
-		userStorage.create(User.builder().email("dsada@dsa.ru").login("login").name("namem")
-				.birthday(LocalDate.of(1993,12,12)).build());
+        userStorage.create(User.builder().email("dsada@dsa.ru").login("login").name("namem")
+                .birthday(LocalDate.of(1993, 12, 12)).build());
 
-		Optional<User> userOptional = Optional.of(userStorage.getById((long) 1));
+        Optional<User> userOptional = Optional.of(userStorage.getById((long) 1));
 
-		assertThat(userOptional)
-				.isPresent()
-				.hasValueSatisfying(user ->
-						assertThat(user).hasFieldOrPropertyWithValue("id", (long) 1)
-				);
-	}
+        assertThat(userOptional)
+                .isPresent()
+                .hasValueSatisfying(user ->
+                        assertThat(user).hasFieldOrPropertyWithValue("id", (long) 1)
+                );
+    }
 
 }
