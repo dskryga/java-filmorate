@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -60,6 +61,21 @@ public class InMemoryUserStorage implements UserStorage {
         } else {
             throw new NotFoundException(String.format("Пользователь с id %d не найден", id));
         }
+    }
+
+    @Override
+    public void addToFriends(Long id, Long friendId) {
+
+    }
+
+    @Override
+    public Collection<User> getAllFriendsById(Long id) {
+        return List.of();
+    }
+
+    @Override
+    public void removeFriend(Long id, Long friendId) {
+
     }
 
     private long getNextId() {

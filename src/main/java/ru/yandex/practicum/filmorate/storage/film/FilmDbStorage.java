@@ -11,11 +11,12 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.storage.mapper.FilmResultSetExtractor;
 import ru.yandex.practicum.filmorate.storage.utils.FilmDbStorageUtil;
+import ru.yandex.practicum.filmorate.storage.utils.UserDbStorageUtil;
 
 import java.sql.PreparedStatement;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -25,11 +26,26 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final FilmMapper filmMapper;
     private final FilmDbStorageUtil filmDbStorageUtil;
+    private final UserDbStorageUtil userDbStorageUtil;
+    private final FilmResultSetExtractor filmResultSetExtractor;
 
     @Override
     public Collection<Film> getAll() {
-        String query = "SELECT * FROM \"films\";";
-        return jdbcTemplate.query(query, filmMapper);
+        String query = "SELECT f.\"id\", f.\"name\", f.\"description\", f.\"release_date\", f.\"duration\", film_genres_with_names.\"genre_id\", film_genres_with_names.\"genre_name\", f.\"mpa_id\", m.\"mpa_name\"\n" +
+                "FROM \"films\" AS f\n" +
+                "JOIN\n" +
+                "\n" +
+                "(SELECT fg.\"id\" AS \"genre_id\", g.\"genre_name\", fg.\"film_id\"\n" +
+                "FROM \"filmToGenre\" AS fg\n" +
+                "JOIN \"genres\" AS g ON fg.\"genre_id\" = g.\"id\") \n" +
+                "\n" +
+                "AS film_genres_with_names ON f.\"id\" = film_genres_with_names.\"film_id\"\n" +
+                "\n" +
+                "JOIN \"mpa\" AS m ON f.\"mpa_id\" = m.\"id\";";
+
+        return jdbcTemplate.query(query, filmResultSetExtractor);
+
+
     }
 
     @Override
@@ -115,17 +131,24 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getTheMostLikedFilms(Integer count) {
-        return getAll().stream().sorted((o1, o2) -> (o2.getUsersWhoLiked().size()) - (o1.getUsersWhoLiked().size()))
-                .limit(count)
-                .collect(Collectors.toList());
+        String query = "SELECT f.\"id\" AS \"film_id\", f.\"name\", f.\"description\", f.\"release_date\", f.\"duration\", f.\"mpa_id\", COUNT(l.\"user_id\") AS \"likes_count\"\n" +
+                "FROM \"films\" AS F\n" +
+                "JOIN \"likes\" AS L ON f.\"id\" = l.\"film_id\"\n" +
+                "GROUP BY f.\"id\", f.\"name\", f.\"description\", f.\"release_date\", f.\"duration\", f.\"mpa_id\"\n" +
+                "ORDER BY \"likes_count\" DESC\n" +
+                "LIMIT ?;";
+
+        return jdbcTemplate.query(query, filmMapper, count);
     }
 
     public void like(Long filmId, Long userId) {
+        userDbStorageUtil.checkUser(userId);
         String query = "INSERT INTO \"likes\" (\"user_id\", \"film_id\") VALUES(?,?);";
         jdbcTemplate.update(query, userId, filmId);
     }
 
     public void removeLike(Long filmId, Long userId) {
+        userDbStorageUtil.checkUser(userId);
         String query = "DELETE FROM \"likes\" WHERE \"user_id\" = ? AND \"film_id\" = ?;";
         jdbcTemplate.update(query, userId, filmId);
     }

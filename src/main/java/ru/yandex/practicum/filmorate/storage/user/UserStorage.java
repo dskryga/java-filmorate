@@ -14,4 +14,9 @@ public interface UserStorage {
 
     User getById(Long id) throws NotFoundException;
 
+    void addToFriends(Long id, Long friendId);
+
+    Collection<User> getAllFriendsById(Long id);
+
+    void removeFriend(Long id, Long friendId);
 }

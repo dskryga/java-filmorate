@@ -4,18 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.utils.UserDbStorageUtil;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-    private final UserStorage inMemoryUserStorage;
-    private final UserDbStorage userDbStorage;
+    private final UserStorage userDbStorage;
+    private final UserDbStorageUtil userDbStorageUtil;
+
 
     public Collection<User> getAll() {
         return userDbStorage.getAll();
@@ -44,9 +46,12 @@ public class UserService {
     }
 
     public Collection<User> getAllCommonFriends(Long id, Long otherId) {
-        Collection<User> userFriends = getAllFriendIds(id);
-        Collection<User> otherUserFriends = getAllFriendIds(otherId);
-
-        return userFriends.stream().filter(user -> otherUserFriends.contains(user)).collect(Collectors.toList());
+        Set<Long> userFriendsIds = userDbStorageUtil.getFriends(id);
+        Set<Long> otherUserFriendsIds = userDbStorageUtil.getFriends(otherId);
+        return userFriendsIds.stream()
+                .filter(friendId -> otherUserFriendsIds.contains(friendId))
+                .map(friendId -> userDbStorage.getById(friendId))
+                .collect(Collectors.toList());
     }
+
 }

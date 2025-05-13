@@ -14,6 +14,7 @@ public class UserDbStorageUtil {
     private final JdbcTemplate jdbcTemplate;
 
     public Set<Long> getFriends(Long userId) {
+        checkUser(userId);
         String query = "SELECT \"friend_id\" FROM \"friends\" WHERE \"user_id\" = ?;";
         HashSet<Long> friendsIds = new HashSet<>(jdbcTemplate.queryForList(query, Long.class, userId));
         return friendsIds;
