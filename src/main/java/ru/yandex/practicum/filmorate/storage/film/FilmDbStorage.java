@@ -44,9 +44,8 @@ public class FilmDbStorage implements FilmStorage {
                 "JOIN \"mpa\" AS m ON f.\"mpa_id\" = m.\"id\";";
 
         return jdbcTemplate.query(query, filmResultSetExtractor);
-
-
     }
+
 
     @Override
     public Film create(Film film) {
@@ -131,15 +130,26 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getTheMostLikedFilms(Integer count) {
-        String query = "SELECT f.\"id\" AS \"film_id\", f.\"name\", f.\"description\", f.\"release_date\", f.\"duration\", f.\"mpa_id\", COUNT(l.\"user_id\") AS \"likes_count\"\n" +
-                "FROM \"films\" AS F\n" +
+        String query = "SELECT f.\"id\", f.\"name\", f.\"description\", f.\"release_date\", f.\"duration\", film_genres_with_names.\"genre_id\", film_genres_with_names.\"genre_name\", f.\"mpa_id\", m.\"mpa_name\", COUNT(l.\"user_id\") AS \"likes_count\"\n" +
+                "FROM \"films\" AS f\n" +
+                "JOIN\n" +
+                "\n" +
+                "(SELECT fg.\"id\" AS \"genre_id\", g.\"genre_name\", fg.\"film_id\"\n" +
+                "FROM \"filmToGenre\" AS fg\n" +
+                "JOIN \"genres\" AS g ON fg.\"genre_id\" = g.\"id\") \n" +
+                "\n" +
+                "AS film_genres_with_names ON f.\"id\" = film_genres_with_names.\"film_id\"\n" +
+                "\n" +
+                "JOIN \"mpa\" AS m ON f.\"mpa_id\" = m.\"id\"\n" +
+                "\n" +
                 "JOIN \"likes\" AS L ON f.\"id\" = l.\"film_id\"\n" +
                 "GROUP BY f.\"id\", f.\"name\", f.\"description\", f.\"release_date\", f.\"duration\", f.\"mpa_id\"\n" +
                 "ORDER BY \"likes_count\" DESC\n" +
                 "LIMIT ?;";
 
-        return jdbcTemplate.query(query, filmMapper, count);
+        return jdbcTemplate.query(query, filmResultSetExtractor, count);
     }
+
 
     public void like(Long filmId, Long userId) {
         userDbStorageUtil.checkUser(userId);

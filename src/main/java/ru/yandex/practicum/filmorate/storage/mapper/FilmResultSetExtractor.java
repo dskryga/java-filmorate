@@ -19,7 +19,7 @@ public class FilmResultSetExtractor implements ResultSetExtractor<Collection<Fil
     @Override
     public Collection<Film> extractData(ResultSet rs) throws SQLException, DataAccessException {
 
-        Map<Long, Film> idToFilm = new HashMap<>();
+        Map<Long, Film> idToFilm = new LinkedHashMap<>();
 
         while (rs.next()) {
 
