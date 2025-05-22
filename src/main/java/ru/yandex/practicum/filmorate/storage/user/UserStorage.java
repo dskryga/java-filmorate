@@ -4,7 +4,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
-import java.util.Map;
 
 public interface UserStorage {
     Collection<User> getAll();
@@ -15,5 +14,9 @@ public interface UserStorage {
 
     User getById(Long id) throws NotFoundException;
 
-    Map<Long, User> getUsers();
+    void addToFriends(Long id, Long friendId);
+
+    Collection<User> getAllFriendsById(Long id);
+
+    void removeFriend(Long id, Long friendId);
 }

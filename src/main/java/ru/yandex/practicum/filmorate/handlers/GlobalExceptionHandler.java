@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.handlers;
 
 import jakarta.validation.ConstraintViolationException;
+import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,8 +40,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleSQLIntegrityConstraintViolationException(final JdbcSQLIntegrityConstraintViolationException e) {
+        return ErrorResponse.builder().errorCode(404).description(e.getMessage()).build();
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleUncaughtException(final Exception e) {
         return ErrorResponse.builder().errorCode(500).description(e.getMessage()).build();
     }
+
+
 }

@@ -18,4 +18,8 @@ public interface FilmStorage {
     Map<Long, Film> getFilms();
 
     Collection<Film> getTheMostLikedFilms(Integer count);
+
+    void like(Long id, Long userId);
+
+    void removeLike(Long id, Long userId);
 }
